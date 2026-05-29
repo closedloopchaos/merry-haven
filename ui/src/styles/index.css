@@ -240,35 +240,6 @@ html, body, #root {
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.weather-col--collapsed { width: 32px; }
-
-.weather-col__expand {
-  width: 100%;
-  height: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-display);
-  font-size: 28px;
-  letter-spacing: 0.04em;
-  color: var(--dim);
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  transition: color 0.1s;
-  padding: 12px 0;
-}
-.weather-col__expand:hover { color: var(--accent); }
-
-.weather-panel__min {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  color: var(--dim);
-  transition: color 0.1s;
-}
-.weather-panel__min:hover { color: var(--accent); }
 
 /* Range subtabs */
 .weather-panel__tabs {
@@ -344,55 +315,16 @@ html, body, #root {
 }
 .mh-logo__settings:hover { color: var(--accent); }
 
-/* ─── T0 hero block ──────────────────────────────────────────── */
-.launch-col__t0-hero {
-  padding: 16px 20px 24px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.launch-col__t0-label {
+/* ─── Launch column content ──────────────────────────────────── */
+.launch-col__fetched {
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  color: var(--dim);
-  margin-bottom: 4px;
+  letter-spacing: 0.12em;
+  color: var(--dimmer);
+  padding: 6px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-
-.launch-col__t0-name {
-  font-family: var(--font-display);
-  font-size: 22px;
-  letter-spacing: 0.02em;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 10px;
-  margin-bottom: 6px;
-  line-height: 1;
-}
-
-.launch-col__t0-clock {
-  font-family: var(--font-display) !important;
-  font-size: 72px !important;
-  letter-spacing: -0.01em !important;
-  line-height: 0.9 !important;
-  color: var(--text) !important;
-  text-shadow: none !important;
-}
-
-.launch-col__t0-status {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  margin-top: 14px;
-}
-
-/* ─── Launch column content ──────────────────────────────────── */
 .launch-col__list {
   flex: 1;
   overflow-y: auto;
@@ -585,6 +517,7 @@ html, body, #root {
 /* ─── Launch detail slide-in column ─────────────────────────── */
 .launch-detail-col {
   flex-shrink: 0;
+  width: 440px;
   overflow: hidden;
   background: var(--bg);
   border-right: 1px solid var(--border);
@@ -1041,12 +974,13 @@ html, body, #root {
 }
 
 .weather-panel__sld45-btn {
-  display: block;
+  display: inline-block;
   margin: 0 20px;
-  padding: 14px 16px;
-  font-family: var(--font-display);
-  font-size: 20px;
-  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   color: var(--bg);
   background: var(--accent);
   text-decoration: none;
@@ -1136,25 +1070,6 @@ html, body, #root {
   height: 100%;
 }
 
-.editorial__masthead {
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 20px 8px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.editorial__close {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  color: var(--dim);
-  margin-left: 12px;
-  cursor: pointer;
-  transition: color 0.1s;
-}
-.editorial__close:hover { color: var(--accent); }
 
 .editorial__body {
   flex: 1;

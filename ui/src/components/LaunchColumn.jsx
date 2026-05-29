@@ -31,40 +31,26 @@ export default function LaunchColumn({
   launches,
   loading,
   lastFetched,
-  selectedLaunch,
+  selectedId,
   onSelectLaunch,
   onOpenSettings,
   changedIds,
 }) {
-  const nextLaunch = launches[0] ?? null;
-  const nextStatus = nextLaunch
-    ? (STATUS_META[nextLaunch.status?.abbrev] ?? { label: '??', cls: 'badge--tbd' })
-    : null;
-
   return (
     <div className="launch-col">
       <Logo onSettings={onOpenSettings} />
 
-      {nextLaunch && (
-        <div className="launch-col__t0-hero">
-          <CountdownClock netTime={nextLaunch.net} className="launch-col__t0-clock" />
-          <div className="launch-col__t0-name">{nextLaunch.name}</div>
-          <div className="launch-col__t0-status">
-            <span className={`badge badge--lg ${nextStatus.cls}`}>{nextStatus.label}</span>
-            {lastFetched && <span className="panel-header__fetched">{lastFetched}</span>}
-          </div>
-        </div>
-      )}
+      {lastFetched && <div className="launch-col__fetched">{lastFetched}</div>}
 
       <div className="launch-col__list">
         {loading && launches.length === 0 && <div className="panel-note">FETCHING</div>}
         {!loading && launches.length === 0 && <div className="panel-note">NO LAUNCHES SCHEDULED</div>}
-        {launches.map((l, i) => {
+        {launches.slice(1).map((l, i) => {
           const { label, cls } = STATUS_META[l.status?.abbrev] ?? { label: '??', cls: 'badge--tbd' };
           const dayLabel = relativeDay(l.net);
           const padLabel = extractPad(l);
           const prob = l.probability != null && l.probability > 0 ? l.probability : null;
-          const isSelected = selectedLaunch?.id === l.id;
+          const isSelected = l.id === selectedId;
           const isChanged  = changedIds?.has(l.id);
           return (
             <button
@@ -75,7 +61,7 @@ export default function LaunchColumn({
                 isSelected ? 'is-selected' : '',
                 isChanged ? 'is-changed' : '',
               ].filter(Boolean).join(' ')}
-              onClick={() => onSelectLaunch(isSelected ? null : l)}
+              onClick={() => onSelectLaunch(isSelected ? null : l.id)}
             >
               <div className="launch-col__row">
                 <span className="launch-col__provider">

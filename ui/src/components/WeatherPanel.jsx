@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import RadarMap from './RadarMap.jsx';
-import SatellitePanel from './SatellitePanel.jsx';
 import PadMap from './PadMap.jsx';
 import LaunchTimeline from './LaunchTimeline.jsx';
 
@@ -18,7 +17,7 @@ function formatTime(iso) {
   } catch { return ''; }
 }
 
-export default function WeatherPanel({ weather, launches = [], selectedLaunch, onCollapse }) {
+export default function WeatherPanel({ weather, launches = [], selectedLaunch }) {
   const [activeTab, setActiveTab] = useState(() => {
     try { return localStorage.getItem('mh-range-tab') || 'forecast'; } catch { return 'forecast'; }
   });
@@ -28,17 +27,10 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch, o
     try { localStorage.setItem('mh-range-tab', t); } catch {}
   }
 
-  const minButton = onCollapse && (
-    <button className="weather-panel__min" onClick={onCollapse} title="Close">CLOSE ✕</button>
-  );
-
   if (!weather) {
     return (
       <div className="weather-panel">
-        <div className="panel-header">
-          RANGE
-          {minButton}
-        </div>
+        <div className="panel-header">RANGE</div>
         <div className="panel-note">FETCHING</div>
       </div>
     );
@@ -60,7 +52,6 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch, o
       <div className="panel-header">
         RANGE
         {obsTime && <span className="panel-header__fetched">OBS {obsTime}</span>}
-        {minButton}
       </div>
 
       <div className="weather-panel__tabs">
@@ -175,9 +166,6 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch, o
           <>
             <div className="weather-panel__section-label">RADAR / KMLB</div>
             <RadarMap />
-
-            <div className="weather-panel__section-label">GOES-16 / SE</div>
-            <SatellitePanel />
           </>
         )}
 

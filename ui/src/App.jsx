@@ -22,18 +22,13 @@ export default function App() {
   const { weather } = useWeather();
   const { launchMode, countdownMode, activeLaunch, dismiss, dismissCountdown } = useLaunchWatch(launches);
   const statusChangedIds = useStatusChanges(launches);
-  const [selectedLaunch, setSelectedLaunch] = useState(null);
-  const [weatherCollapsed, setWeatherCollapsed] = useState(() => {
-    try { return localStorage.getItem('mh-range-collapsed') === '1'; } catch { return false; }
-  });
+  const [selectedId, setSelectedId] = useState(null);
+  const displayLaunch = selectedId
+    ? (launches.find(l => l.id === selectedId) ?? launches[0] ?? null)
+    : (launches[0] ?? null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [testCountdown, setTestCountdown] = useState(false);
   const testNetTimeRef = useRef(null);
-
-  function toggleWeather(next) {
-    setWeatherCollapsed(next);
-    try { localStorage.setItem('mh-range-collapsed', next ? '1' : '0'); } catch {}
-  }
 
   function startTestCountdown() {
     testNetTimeRef.current = new Date(Date.now() + TEST_COUNTDOWN_OFFSET_MS).toISOString();
@@ -106,50 +101,26 @@ export default function App() {
                 launches={launches}
                 loading={launchLoading}
                 lastFetched={launchFetched}
-                selectedLaunch={selectedLaunch}
-                onSelectLaunch={setSelectedLaunch}
+                selectedId={selectedId}
+                onSelectLaunch={setSelectedId}
                 onOpenSettings={() => setSettingsOpen(true)}
                 changedIds={statusChangedIds}
               />
 
-              <AnimatePresence>
-                {selectedLaunch && (
-                  <motion.div
-                    key="launch-detail"
-                    className="launch-detail-col"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: 440, opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                  >
-                    <LaunchDetail
-                      launch={selectedLaunch}
-                      launches={launches}
-                      onClose={() => setSelectedLaunch(null)}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {displayLaunch && (
+                <div className="launch-detail-col">
+                  <LaunchDetail launch={displayLaunch} />
+                </div>
+              )}
 
               <CenterPanel launches={launches} />
 
-              <div className={`weather-col ${weatherCollapsed ? 'weather-col--collapsed' : ''}`}>
-                {weatherCollapsed ? (
-                  <button
-                    className="weather-col__expand"
-                    onClick={() => toggleWeather(false)}
-                    title="Expand range panel"
-                  >
-                    RANGE
-                  </button>
-                ) : (
-                  <WeatherPanel
-                    weather={weather}
-                    launches={launches}
-                    selectedLaunch={selectedLaunch}
-                    onCollapse={() => toggleWeather(true)}
-                  />
-                )}
+              <div className="weather-col">
+                <WeatherPanel
+                  weather={weather}
+                  launches={launches}
+                  selectedLaunch={displayLaunch}
+                />
               </div>
             </motion.div>
           )}

@@ -59,13 +59,10 @@ function buildFootnotes(launch) {
   if (customer) {
     notes.push(`Customer: ${customer}`);
   }
-  if (launch.pad?.location?.name) {
-    notes.push(`Range: ${launch.pad.location.name}`);
-  }
   return notes;
 }
 
-export default function LaunchDetail({ launch, launches = [], onClose }) {
+export default function LaunchDetail({ launch }) {
   if (!launch) return null;
 
   const provider     = launch.launch_service_provider?.name ?? '';
@@ -85,10 +82,6 @@ export default function LaunchDetail({ launch, launches = [], onClose }) {
 
   return (
     <div className="launch-detail editorial">
-      <div className="editorial__masthead">
-        <button className="editorial__close" onClick={onClose}>CLOSE ✕</button>
-      </div>
-
       <div className="editorial__body">
         <div className="editorial__headline-row">
           {patchUrl && (
@@ -148,7 +141,6 @@ export default function LaunchDetail({ launch, launches = [], onClose }) {
           {missionType && (<><dt>TYPE</dt><dd>{missionType}</dd></>)}
           {orbit       && (<><dt>ORBIT</dt><dd>{orbit}</dd></>)}
           <dt>NET</dt><dd>{formatNet(launch.net)}</dd>
-          <dt>PROVIDER</dt><dd>{provider}</dd>
         </dl>
 
         {vidUrls.length > 0 && (
