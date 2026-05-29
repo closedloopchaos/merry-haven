@@ -318,11 +318,20 @@ html, body, #root {
 /* ─── T0 hero block ──────────────────────────────────────────── */
 .launch-col__t0-hero {
   padding: 16px 20px 24px;
+  padding-left: 17px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: border-left-color 0.1s, background 0.1s;
+}
+.launch-col__t0-hero:hover    { background: rgba(255,255,255,0.03); }
+.launch-col__t0-hero.is-active {
+  border-left-color: var(--accent);
+  background: rgba(230,57,70,0.08);
 }
 
 .launch-col__t0-name {

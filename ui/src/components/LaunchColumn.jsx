@@ -46,7 +46,12 @@ export default function LaunchColumn({
       <Logo onSettings={onOpenSettings} />
 
       {nextLaunch && (
-        <div className="launch-col__t0-hero">
+        <div
+          className={`launch-col__t0-hero${selectedId ? '' : ' is-active'}`}
+          onClick={() => onSelectLaunch(null)}
+          role="button"
+          tabIndex={0}
+        >
           <CountdownClock netTime={nextLaunch.net} className="launch-col__t0-clock" />
           <div className="launch-col__t0-name">{nextLaunch.name}</div>
           <div className="launch-col__t0-status">
