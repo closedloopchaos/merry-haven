@@ -134,7 +134,7 @@ export default function PadMap({ launches = [] }) {
               fill="rgba(255,255,255,0.5)" letterSpacing="0.18em">CCSFS</text>
 
         {padActivity.map(pad => {
-          const active = !!pad.next;
+          const active = pad.id === soonest?.id;
           const sz = 2.4 * labelScale;
           const fontSz = 3.2 * labelScale;
           const subSz  = 2.3 * labelScale;

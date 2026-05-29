@@ -854,9 +854,20 @@ html, body, #root {
   flex-direction: column;
   padding: 8px 0 16px;
   gap: 6px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  overflow: hidden;
+}
+
+.weather-panel__radar-fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-panel__radar-fill .radar-embed {
+  flex: 1;
+  height: 0;
+  margin-bottom: 0;
 }
 
 .weather-panel__wind-block {
@@ -1005,6 +1016,7 @@ html, body, #root {
 
 .weather-panel__sld45-btn {
   display: inline-block;
+  align-self: flex-start;
   margin: 0 20px;
   padding: 6px 12px;
   font-family: var(--font-mono);

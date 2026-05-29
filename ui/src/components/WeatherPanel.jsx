@@ -163,10 +163,10 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch })
         )}
 
         {activeTab === 'radar' && (
-          <>
+          <div className="weather-panel__radar-fill">
             <div className="weather-panel__section-label">RADAR / KMLB</div>
             <RadarMap />
-          </>
+          </div>
         )}
 
         {activeTab === 'timeline' && (
