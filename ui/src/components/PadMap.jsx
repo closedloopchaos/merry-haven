@@ -62,7 +62,7 @@ export default function PadMap({ launches = [] }) {
         const nx = cx - newW * px;
         const ny = cy - newH * py;
         if (!isFiniteNum(nx) || !isFiniteNum(ny)) return prev;
-        return { x: nx, y: ny, w: newW, h: newH };
+        return { x: clamp(nx, -newW * 0.9, 100), y: clamp(ny, -newH * 0.9, 100), w: newW, h: newH };
       });
     }
 
@@ -91,7 +91,11 @@ export default function PadMap({ launches = [] }) {
     const dx = (e.clientX - dragRef.current.sx) / rect.width  * vb.w;
     const dy = (e.clientY - dragRef.current.sy) / rect.height * vb.h;
     if (!isFiniteNum(dx) || !isFiniteNum(dy)) return;
-    setVb(v => ({ ...v, x: dragRef.current.vbx - dx, y: dragRef.current.vby - dy }));
+    setVb(v => ({
+      ...v,
+      x: clamp(dragRef.current.vbx - dx, -v.w * 0.9, 100),
+      y: clamp(dragRef.current.vby - dy, -v.h * 0.9, 100),
+    }));
   }, [vb.w, vb.h]);
 
   const handleMouseUp = useCallback(() => { dragRef.current = null; }, []);
