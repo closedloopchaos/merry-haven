@@ -366,9 +366,7 @@ html, body, #root {
 /* ─── Launch column content ──────────────────────────────────── */
 .launch-col__list {
   flex: 1;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  overflow: hidden;
   min-height: 0;
 }
 
@@ -1124,13 +1122,11 @@ html, body, #root {
 
 .editorial__body {
   flex: 1;
-  padding: 18px 20px 24px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  padding: 14px 20px 16px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .editorial__rule {
@@ -1148,8 +1144,8 @@ html, body, #root {
 }
 
 .editorial__patch {
-  width: 90px;
-  height: 90px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -1164,7 +1160,7 @@ html, body, #root {
 
 .editorial__headline {
   font-family: var(--font-display);
-  font-size: 56px;
+  font-size: 46px;
   letter-spacing: 0.01em;
   line-height: 0.9;
   color: var(--text);
@@ -1193,7 +1189,7 @@ html, body, #root {
 
 .editorial__clock {
   font-family: var(--font-display) !important;
-  font-size: 64px !important;
+  font-size: 52px !important;
   letter-spacing: -0.01em !important;
   line-height: 0.9 !important;
   color: var(--text) !important;
@@ -1224,52 +1220,14 @@ html, body, #root {
 
 .editorial__lede {
   font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--text);
   margin: 0;
-}
-
-.editorial__lede::first-letter {
-  font-family: var(--font-display);
-  font-size: 64px;
-  line-height: 0.85;
-  float: left;
-  margin: 4px 8px 0 0;
-  color: var(--accent);
-}
-
-.editorial__footmark {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--accent);
-  margin-left: 2px;
-  vertical-align: super;
-  letter-spacing: 0.05em;
-}
-
-.editorial__footnotes {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.editorial__footnotes li {
-  display: flex;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--dim);
-}
-
-.editorial__footnote-num {
-  color: var(--accent);
-  flex-shrink: 0;
-  min-width: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .editorial__specs {
@@ -1463,6 +1421,20 @@ html, body, #root {
   text-transform: uppercase;
 }
 
+.countdown-view__rocket {
+  color: var(--dim);
+}
+
+.countdown-view__wx {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
 /* Clock block: massive countdown */
 .countdown-view__clock-block {
   display: flex;
@@ -1472,6 +1444,12 @@ html, body, #root {
   padding-top: 18px;
 }
 
+.countdown-view__clock-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 .countdown-view__clock-label {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -1479,6 +1457,14 @@ html, body, #root {
   letter-spacing: 0.22em;
   color: var(--dim);
   text-transform: uppercase;
+}
+
+.countdown-view__status {
+  font-family: var(--font-display);
+  font-size: 38px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  line-height: 1;
 }
 
 .countdown-view__clock {

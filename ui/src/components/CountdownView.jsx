@@ -41,10 +41,13 @@ const HUD_DECEL = [0.16, 1, 0.3, 1];
 export default function CountdownView({ launch, isTest, onDismiss }) {
   const band = useCountdownBand(launch?.net);
   if (!launch) return null;
-  const stream = autoSelectStream(launch);
-  const pad = launch.pad?.name ?? '';
+  const stream   = autoSelectStream(launch);
+  const pad      = launch.pad?.name ?? '';
   const location = launch.pad?.location?.name ?? '';
   const provider = launch.launch_service_provider?.abbrev ?? launch.launch_service_provider?.name ?? '';
+  const rocket   = launch.rocket?.configuration?.name ?? '';
+  const status   = launch.status?.abbrev ?? '';
+  const probability = launch.probability != null && launch.probability >= 0 ? launch.probability : null;
 
   return (
     <div className="countdown-view">
@@ -80,16 +83,24 @@ export default function CountdownView({ launch, isTest, onDismiss }) {
         </div>
 
         <div className="countdown-view__mission">
-          <span className="countdown-view__provider">{provider}</span>
+          <span className="countdown-view__provider">
+            {provider}{rocket ? <span className="countdown-view__rocket"> · {rocket}</span> : null}
+          </span>
           <span className="countdown-view__name">{launch.name}</span>
           <div className="countdown-view__pad-block">
             <span className="countdown-view__pad">{pad}</span>
             {location && <span className="countdown-view__location">{location}</span>}
+            {probability != null && (
+              <span className="countdown-view__wx">WX GO {probability}%</span>
+            )}
           </div>
         </div>
 
         <div className={`countdown-view__clock-block countdown-view__clock-block--${band}`}>
-          <span className="countdown-view__clock-label">T MINUS</span>
+          <div className="countdown-view__clock-header">
+            <span className="countdown-view__clock-label">T MINUS</span>
+            {status && <span className="countdown-view__status">{status}</span>}
+          </div>
           <CountdownClock netTime={launch.net} className="countdown-view__clock" />
         </div>
       </motion.div>
