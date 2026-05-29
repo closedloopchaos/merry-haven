@@ -71,7 +71,6 @@ export default function LaunchColumn({
               key={l.id}
               className={[
                 'launch-col__item',
-                i === 0 ? 'is-next' : '',
                 isSelected ? 'is-selected' : '',
                 isChanged ? 'is-changed' : '',
               ].filter(Boolean).join(' ')}
