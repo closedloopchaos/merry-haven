@@ -315,16 +315,46 @@ html, body, #root {
 }
 .mh-logo__settings:hover { color: var(--accent); }
 
-/* ─── Launch column content ──────────────────────────────────── */
-.launch-col__fetched {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--dimmer);
-  padding: 6px 20px;
-  border-bottom: 1px solid var(--border);
+/* ─── T0 hero block ──────────────────────────────────────────── */
+.launch-col__t0-hero {
+  padding: 16px 20px 24px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
+
+.launch-col__t0-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.launch-col__t0-clock {
+  font-family: var(--font-display) !important;
+  font-size: 72px !important;
+  letter-spacing: -0.01em !important;
+  line-height: 0.9 !important;
+  color: var(--text) !important;
+  text-shadow: none !important;
+}
+
+.launch-col__t0-status {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* ─── Launch column content ──────────────────────────────────── */
 .launch-col__list {
   flex: 1;
   overflow-y: auto;

@@ -36,11 +36,25 @@ export default function LaunchColumn({
   onOpenSettings,
   changedIds,
 }) {
+  const nextLaunch = launches[0] ?? null;
+  const nextStatus = nextLaunch
+    ? (STATUS_META[nextLaunch.status?.abbrev] ?? { label: '??', cls: 'badge--tbd' })
+    : null;
+
   return (
     <div className="launch-col">
       <Logo onSettings={onOpenSettings} />
 
-      {lastFetched && <div className="launch-col__fetched">{lastFetched}</div>}
+      {nextLaunch && (
+        <div className="launch-col__t0-hero">
+          <CountdownClock netTime={nextLaunch.net} className="launch-col__t0-clock" />
+          <div className="launch-col__t0-name">{nextLaunch.name}</div>
+          <div className="launch-col__t0-status">
+            <span className={`badge badge--lg ${nextStatus.cls}`}>{nextStatus.label}</span>
+            {lastFetched && <span className="panel-header__fetched">{lastFetched}</span>}
+          </div>
+        </div>
+      )}
 
       <div className="launch-col__list">
         {loading && launches.length === 0 && <div className="panel-note">FETCHING</div>}
