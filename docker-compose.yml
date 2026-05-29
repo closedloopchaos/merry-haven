@@ -1,0 +1,16 @@
+services:
+  api:
+    build: ./api
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  ui:
+    build: ./ui
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
