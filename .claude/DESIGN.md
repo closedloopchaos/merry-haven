@@ -241,10 +241,107 @@ These all make Merry Haven look like a TUI or a Grafana clone. They are banned.
 | Editorial spread | `ui/src/components/LaunchDetail.jsx` |
 | Settings modal | `ui/src/components/SettingsMenu.jsx` |
 | News ticker | `ui/src/components/NewsTicker.jsx` + `ui/src/hooks/useNews.js` |
+| Site definitions | `ui/src/data/sites.js` |
+| Site-aware API | `api/server.js` (`/api/weather?station=&lat=&lon=`) |
+| Site-aware weather hook | `ui/src/hooks/useWeather.js` |
+| Globe | `ui/src/components/TimelineGlobe.jsx` + `ui/src/data/orbits.js` |
 
 ---
 
-## 9. When adding something new
+## 9. Multi-site model (Space Coast / Starbase / Vandenberg)
+
+The range panel and stream picker are **site-aware**. A site is defined in `ui/src/data/sites.js` with its coords, NWS station, stream id, radar lat/lon, pad layout, and pad-name match terms.
+
+### State model
+
+- `activeSite` lives in `App.jsx`, computed as `siteOverride ?? getSiteForLaunch(displayLaunch)`.
+- `siteOverride` is set when the user clicks a site tab in the range panel or a launch-site-mapped stream tab in the center panel.
+- `siteOverride` **resets to `null` every time `selectedId` changes** (i.e. when the user clicks a different launch in the list). The override is intentionally transient.
+
+### What follows the active site
+
+| Component | Effect |
+|---|---|
+| `WeatherPanel` (forecast/radar/timeline/pads) | Pulls NWS observations + forecast for the site's station + coords |
+| `RadarMap` | Windy iframe centers on the site's `radarLat` / `radarLon` |
+| `PadMap` | Renders the site's `pads`, `siteLabels`, and `coastline` |
+| `CenterPanel` stream | Auto-selects the site's `streamId` |
+| `CountdownView` stream | Same — `streamForLaunch(launch)` resolves through `getSiteForLaunch` |
+| SLD-45 forecast button | Only renders when `site.id === 'spacecoast'` |
+
+### What does **not** follow the active site
+
+- **The launch list and T-0 hero are global.** The hero always shows the absolute next launch in America. The list shows all upcoming launches across all sites — filtering by site is intentionally not done.
+- **`StreamEmbed` (launch mode)** uses the launch's actual `vid_urls` from LL2, not the site stream. Launch-specific webcasts trump site defaults.
+
+### Site tabs
+
+A row of clickable tabs above the existing FORECAST/RADAR/TIMELINE/PADS sub-tabs in the range panel. Tabs are full-width-divided, mono 10px, `letter-spacing: 0.22em`, uppercase. Active tab: `var(--accent)` text + faint accent tint background.
+
+### Stream ↔ site sync
+
+The sync is bidirectional but asymmetric:
+- Picking a **site tab** auto-selects that site's stream.
+- Picking a **stream tab that maps to a site** (Space Coast or Starbase) also flips the active site (via `onSelectSite`).
+- The McGregor stream does **not** map to a site — picking it changes the stream only. It's an engine-test feed, not a range.
+
+### Fallbacks
+
+- A launch whose pad/location doesn't match any site → falls back to Space Coast.
+- A site with no dedicated stream (Vandenberg) → falls back to the Space Coast stream feed. The Vandenberg tab is **never** included in the stream picker.
+
+---
+
+## 10. No-scroll layout discipline
+
+The Corsair Xeneon Edge is a hard-locked **2560×720**. Nothing on this dashboard ever scrolls — anything that doesn't fit is either restructured or clipped at a clean boundary.
+
+### Rules
+
+- `.app` is `height: var(--display-h); overflow: hidden`. No exceptions.
+- Every column constrains its content to fit. Use `overflow: hidden` on the column root, not `overflow: auto`.
+- Long lists (launch column, weather forecast cells, etc.) use **fixed item heights** so partial-item clipping happens at predictable boundaries.
+- For lists where some items will overflow, apply a `mask-image` linear-gradient fade at the bottom (`black 92% → transparent 100%`) so the cutoff reads as intentional rather than truncated.
+- Hero blocks get explicit `max-height` so they can't grow if content varies (long mission names, extra metadata, etc.).
+- Modal `max-height: 640px` with `overflow-y: auto` is the **only** allowed scrollable surface, and only because it's transient.
+
+### Fixed-height components
+
+| Component | Constraint |
+|---|---|
+| `.launch-col` | `height: 100%; max-height: var(--display-h)` |
+| `.launch-col .mh-logo` | `max-height: 80px` |
+| `.launch-col__t0-hero` | `max-height: 165px` |
+| `.launch-col__item` | `height: 84px` (uniform) |
+| `.launch-detail-col` | `width: 440px`, body `overflow: hidden` |
+| `.weather-col` | `width: 760px`, body `overflow: hidden` |
+| `.editorial__body` | Content sized to fit `~680px` with no scroll — drop cap removed, lede clamped to 3 lines, footnotes folded into specs grid |
+| `.weather-panel__body` | `overflow: hidden`; radar and pads tabs wrap their content in a `flex: 1; min-height: 0` fill div so their SVGs/iframes stretch |
+
+### When adding new content
+
+If a new element doesn't fit, the answer is **never** "add a scrollbar." It's either: shrink the element, restructure to use less space, or accept that less of the content is visible. The discipline is the design.
+
+---
+
+## 11. Globe view conventions
+
+`TimelineGlobe.jsx` renders the orbital trajectory in the timeline tab. Conventions:
+
+- **Sphere `R = W * 0.36`** — the planet is intentionally smaller than half the viewBox so the lifted orbit fits comfortably with margin for atmosphere and pad labels.
+- **`ORBIT_LIFT = 0.22`** — the orbital plane is projected at `R(1 + 0.22)` from the globe center, which is the geometrically correct screen position for a point at `0.22 × R` altitude in orthographic projection. This visibly arcs the orbit above the planet (not skimming the surface).
+- **Ascent path** interpolates lift from 0 at the pad to full `ORBIT_LIFT` over the first 40° of arc — the rocket visibly climbs.
+- **Atmosphere halo** sits at `R + 16px` (thin layer above surface, below orbit). A faint dashed `R × (1 + ORBIT_LIFT)` ring is rendered as a visual reference for orbit altitude.
+- **Surface content** (graticule, land fill, ground track) is clipped to the sphere via `<clipPath>` so it never extends past the visible hemisphere.
+- **Glow filter** on ascent + pad marker via `feGaussianBlur stdDeviation="2.6"`.
+
+### Limitation — inclination data
+
+Pre-launch orbital inclination in degrees is **not available in any free public API.** LL2 exposes orbit name and abbrev (`LEO`, `GTO`, `SSO`) but no number. The values in `data/orbits.js` are heuristic estimates by orbit class plus a hand-curated mission-name override table (Starlink shells, ISS resupply). Any displayed trajectory is approximate — explicit "EST" labeling is on the table for a future pass.
+
+---
+
+## 12. When adding something new
 
 Before writing any JSX/CSS:
 
