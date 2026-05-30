@@ -304,6 +304,7 @@ The Corsair Xeneon Edge is a hard-locked **2560×720** that lives on a wall **24
 - **Cap list counts, don't clip items.** If 5 of 12 launches fit in the available space, render only 5. Truncating items mid-height is unreadable. `launches.slice(1, N)` with N chosen so items render at their natural height is the pattern, not `overflow: hidden` on a long list.
 - Hero blocks get explicit `max-height` so they can't grow if content varies (long mission names, extra metadata, etc.). The intent of the cap is to make the column predictable, not to clip the hero itself.
 - Modal `max-height: 640px` with `overflow-y: auto` is the **only** allowed scrollable surface, and only because it's a transient interaction surface that's hidden by default.
+- **T-minus clocks are always single line.** Digits use `font-variant-numeric: tabular-nums` (uniform width, no jitter) and the wrapping span is `white-space: nowrap`. If the clock's row threatens to overflow (long pad name next to a 9-hour countdown), the clock font-size scales down via `clamp()` + container queries — never wraps, never truncates. See `.editorial__clock` for the canonical implementation.
 
 ### Fixed-height components
 
@@ -312,10 +313,11 @@ The Corsair Xeneon Edge is a hard-locked **2560×720** that lives on a wall **24
 | `.launch-col` | `height: 100%; max-height: var(--display-h)` |
 | `.launch-col .mh-logo` | `max-height: 80px` |
 | `.launch-col__t0-hero` | `max-height: 165px` |
-| `.launch-col__list` | Renders `launches.slice(1, 5)` — at most 4 items, sized naturally to ~95px each so all are fully readable |
+| `.launch-col__list` | Renders `launches.slice(1, 5)` — at most 4 items, sized at ~86px each so all are fully readable |
+| `.launch-col__item` | `padding: 9px 20px`, `.launch-col__name` at 19px |
 | `.launch-detail-col` | `width: 440px`, body `overflow: hidden` |
 | `.weather-col` | `width: 760px`, body `overflow: hidden` |
-| `.editorial__body` | Content sized to fit `~680px` with no scroll — drop cap removed, lede clamped to 3 lines, footnotes folded into specs grid |
+| `.editorial__body` | Content sized to fit `~680px` with no scroll — patch 140px hero, headline 36px, lede clamped to 2 lines, footnotes folded into specs grid |
 | `.weather-panel__body` | `overflow: hidden`; radar and pads tabs wrap their content in a `flex: 1; min-height: 0` fill div so their SVGs/iframes stretch |
 
 ### When adding new content
@@ -324,7 +326,54 @@ If a new element doesn't fit, the answer is **never** "add a scrollbar." It's ei
 
 ---
 
-## 11. When adding something new
+## 11. Countdown escalation tiers
+
+Every `CountdownClock` instance derives a tier from the remaining milliseconds and renders `countdown countdown--<tier>` so any clock anywhere intensifies as the launch approaches. Progression is intentionally calm above T-15m and only goes red at T-1m — the wall display should not look frantic four hours out.
+
+| Tier | When | Visual |
+|---|---|---|
+| `far` | > T-1h | `var(--text)` — default, neutral |
+| `approaching` | T-15m → T-1h | `var(--text)` — same; the only signal is the ticking digits |
+| `imminent` | T-5m → T-15m | `var(--bright)` + `font-weight: 500` — brightens |
+| `critical` | T-1m → T-5m | `var(--bright)` + `font-weight: 600` + tighter letter-spacing — visibly tense |
+| `urgent` | T-0 → T-1m | `var(--accent)` (crimson) |
+| `launched` | T+ (post-NET) | `var(--accent)` (crimson) |
+
+The launch column hero block (`.launch-col__t0-hero`) reads its child clock's tier via CSS `:has()` and adopts the accent left-border + tint background once the clock crosses `imminent` (T-15m) or beyond, regardless of whether the user has explicitly selected another launch. This guarantees the wall shouts when a launch is genuinely close, not just when someone happens to be clicking around.
+
+Do not introduce more tiers. Six is the discipline. If you need more nuance, encode it elsewhere (status badge, banner) — not by fragmenting this scale.
+
+---
+
+## 12. 24/7 operation
+
+The display lives on a wall and runs continuously. Two patterns address that.
+
+### Nightly dim mode
+
+`useDimMode()` returns `true` when local clock is between **22:00 and 06:00**. App root toggles `.app--dim`, which applies `filter: brightness(0.4)` with an `8s ease` transition (slow enough that someone walking in at 22:01 doesn't notice a flash).
+
+**Use `filter: brightness()`, never `opacity`.** On OLED, lowering opacity blends the source pixel with the background — the LED still emits at full power. `filter: brightness()` actually reduces emission, which is what you need for burn-in mitigation.
+
+### Status-change top banner
+
+When `useStatusChanges` detects a launch's `status.abbrev` flipping (Go → Hold, TBD → Go, etc.), it emits a `latestEvent` object. `<StatusBanner>` slides down from the top of the main area, showing `STATUS CHANGE — <mission> — FROM → TO`, and auto-dismisses after **30 seconds**. The banner is `position: absolute; z-index: 50` over the main area so it does not reshuffle the layout; the row-level pulse on the launch list continues to fire independently (4.5s).
+
+Banner colors: solid `var(--accent)` background, `var(--bg)` text — same scheme as the primary CTA button. There is exactly one banner at a time; if multiple flips happen in one fetch tick, only the most recent renders. (Earlier flips are still pulsed in the row list, so they are not silently lost.)
+
+---
+
+## 13. Crewed launches
+
+For any launch where `launch.rocket.configuration.human_rated === true` or `launch.mission.type === 'Human Exploration'`, the editorial detail panel renders an inline `CREWED` badge at the top of the body (above the patch hero). The badge is solid `var(--accent)` background with `var(--bg)` text in 22px Bebas — visually equivalent to the primary CTA but content-width via `align-self: flex-start`.
+
+A crew roster (`launch.mission.crew` when LL2 returns it) optionally renders inline beside the label. Roster is "nice to have" — when absent, the badge alone signals the mission's stakes.
+
+Crewed launches are the highest-stakes events on the calendar. The single CREWED chip is the loudest visual cue any launch gets short of a status-change banner.
+
+---
+
+## 14. When adding something new
 
 Before writing any JSX/CSS:
 

@@ -73,24 +73,29 @@ export default function LaunchDetail({ launch }) {
 
   const patchUrl = pickPatch(launch);
   const specs    = buildSpecs(launch);
+  const isCrewed = launch.rocket?.configuration?.human_rated === true
+    || launch.mission?.type === 'Human Exploration';
 
   return (
     <div className="launch-detail editorial">
       <div className="editorial__body">
 
-        <div className="editorial__headline-row">
-          {patchUrl && (
-            <img src={patchUrl} alt="Mission patch" className="editorial__patch" />
-          )}
-          <div className="editorial__headline-block">
-            <h1 className="editorial__headline">{launch.name}</h1>
-            <div className="editorial__byline">
-              <span>{abbrev}</span>
-              <span className="editorial__byline-sep">·</span>
-              <span>{rocket}</span>
-              <span className="editorial__byline-sep">·</span>
-              <span className={`badge ${statusCls}`}>{statusLabel}</span>
-            </div>
+        {isCrewed && <div className="editorial__crewed">CREWED</div>}
+
+        {patchUrl && (
+          <div className="editorial__patch-hero">
+            <img src={patchUrl} alt="Mission patch" />
+          </div>
+        )}
+
+        <div className="editorial__headline-block">
+          <h1 className="editorial__headline">{launch.name}</h1>
+          <div className="editorial__byline">
+            <span>{abbrev}</span>
+            <span className="editorial__byline-sep">·</span>
+            <span>{rocket}</span>
+            <span className="editorial__byline-sep">·</span>
+            <span className={`badge ${statusCls}`}>{statusLabel}</span>
           </div>
         </div>
 

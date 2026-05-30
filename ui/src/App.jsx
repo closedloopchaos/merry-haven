@@ -12,8 +12,10 @@ import StreamEmbed from './components/StreamEmbed.jsx';
 import NewsTicker from './components/NewsTicker.jsx';
 import CountdownView from './components/CountdownView.jsx';
 import SettingsMenu from './components/SettingsMenu.jsx';
+import StatusBanner from './components/StatusBanner.jsx';
 import { useStatusChanges } from './hooks/useStatusChanges.js';
 import { useNews } from './hooks/useNews.js';
+import { useDimMode } from './hooks/useDimMode.js';
 import { getSite, getSiteForLaunch } from './data/sites.js';
 
 const TEST_COUNTDOWN_DURATION_MS = 90_000;
@@ -22,7 +24,7 @@ const TEST_COUNTDOWN_OFFSET_MS   = 60_000;
 export default function App() {
   const { launches, loading: launchLoading, lastFetched: launchFetched } = useLaunches();
   const { launchMode, countdownMode, activeLaunch, dismiss, dismissCountdown } = useLaunchWatch(launches);
-  const statusChangedIds = useStatusChanges(launches);
+  const { changedIds: statusChangedIds, latestEvent: statusEvent, dismiss: dismissStatus } = useStatusChanges(launches);
   const [selectedId, setSelectedId] = useState(null);
   const displayLaunch = selectedId
     ? (launches.find(l => l.id === selectedId) ?? launches[0] ?? null)
@@ -38,6 +40,7 @@ export default function App() {
 
   const { weather, lastFetched: weatherFetched } = useWeather(activeSite);
   const { articles: newsArticles, lastFetched: newsFetched } = useNews();
+  const dim = useDimMode();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [testCountdown, setTestCountdown] = useState(false);
@@ -57,8 +60,9 @@ export default function App() {
   const onCloseCountdown = testCountdown ? () => setTestCountdown(false) : dismissCountdown;
 
   return (
-    <div className="app">
+    <div className={`app${dim ? ' app--dim' : ''}`}>
       <div className="app__main-area">
+        <StatusBanner event={statusEvent} onDismiss={dismissStatus} />
         <AnimatePresence mode="wait">
           {showCountdown && countdownLaunch ? (
             <motion.div

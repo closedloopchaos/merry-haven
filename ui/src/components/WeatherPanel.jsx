@@ -64,13 +64,17 @@ export default function WeatherPanel({
 
   const { temperature, dewPoint, windSpeed, windDirection, windGust, visibility, relativeHumidity, textDescription, periods, obsTime } = weather;
 
+  // T0 highlight: only tag a cell when the launch's NET actually falls inside
+  // that period's [startTime, endTime). If the launch is outside the visible
+  // 6-hour window, no cell is highlighted (intentional).
   const t0Ms = launches[0]?.net ? Date.parse(launches[0].net) : null;
-  const isNearTerm = t0Ms != null && (t0Ms - Date.now()) < 12 * 3600 * 1000 && (t0Ms - Date.now()) > 0;
-  const t0PeriodIdx = isNearTerm
-    ? periods.slice(0, 6).reduce((best, p, i) => {
-        const d = Math.abs(Date.parse(p.startTime) - t0Ms);
-        return d < best.d ? { i, d } : best;
-      }, { i: -1, d: Infinity }).i
+  const t0PeriodIdx = t0Ms != null
+    ? periods.slice(0, 6).findIndex(p => {
+        const start = Date.parse(p.startTime);
+        const end   = Date.parse(p.endTime);
+        return Number.isFinite(start) && Number.isFinite(end)
+            && start <= t0Ms && t0Ms < end;
+      })
     : -1;
 
   const isSpaceCoast = site?.id === 'spacecoast';
