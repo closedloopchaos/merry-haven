@@ -1215,7 +1215,7 @@ html, body, #root {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .editorial__rule {
@@ -1269,7 +1269,6 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex: 1;
   min-width: 0;
 }
 
@@ -1334,11 +1333,14 @@ html, body, #root {
 
 .editorial__location {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: clamp(8px, 2.2cqw, 10px);
   font-weight: 500;
   letter-spacing: 0.18em;
   color: var(--dim);
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .editorial__lede {

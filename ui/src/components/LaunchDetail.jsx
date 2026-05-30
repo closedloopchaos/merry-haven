@@ -99,8 +99,6 @@ export default function LaunchDetail({ launch }) {
           </div>
         </div>
 
-        <hr className="editorial__rule" />
-
         <div className="editorial__clock-row">
           <CountdownClock netTime={launch.net} className="editorial__clock" />
           <div className="editorial__pad-block">
