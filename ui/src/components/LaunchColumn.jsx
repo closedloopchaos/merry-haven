@@ -4,9 +4,43 @@ import Logo from './Logo.jsx';
 function extractPad(launch) {
   const name = launch.pad?.name;
   if (!name) return null;
-  const m = name.match(/\b(SLC|LC|LP|LZ)[- ]?(\d+[A-Z]?)\b/i);
+  // Compact form already (e.g., "SLC-40", "LC-39A")
+  let m = name.match(/\b(SLC|LC|LP|LZ|ELC|OLP)[- ]?(\d+[A-Z]?)\b/i);
   if (m) return `${m[1].toUpperCase()}-${m[2].toUpperCase()}`;
+  // "Space Launch Complex 40" → SLC-40
+  m = name.match(/space launch complex[\s-]+(\d+[A-Z]?)/i);
+  if (m) return `SLC-${m[1].toUpperCase()}`;
+  // "Launch Complex 39A" → LC-39A
+  m = name.match(/launch complex[\s-]+(\d+[A-Z]?)/i);
+  if (m) return `LC-${m[1].toUpperCase()}`;
+  // "Orbital Launch Pad A" → OLP-A
+  m = name.match(/orbital launch pad[\s-]+([A-Z\d]+)/i);
+  if (m) return `OLP-${m[1].toUpperCase()}`;
   return name.split(',')[0].trim().toUpperCase().slice(0, 12);
+}
+
+const PROVIDER_LABELS = {
+  SpX: 'SpaceX',
+  SpaceX: 'SpaceX',
+  ULA: 'ULA',
+  'United Launch Alliance': 'ULA',
+  RL: 'Rocket Lab',
+  'Rocket Lab': 'Rocket Lab',
+  NG: 'Northrop',
+  'Northrop Grumman': 'Northrop',
+  BO: 'Blue Origin',
+  'Blue Origin': 'Blue Origin',
+  Arianespace: 'Arianespace',
+  CASC: 'CASC',
+  ISRO: 'ISRO',
+  JAXA: 'JAXA',
+  Roscosmos: 'Roscosmos',
+};
+
+function providerLabel(launch) {
+  const p = launch.launch_service_provider;
+  if (!p) return '';
+  return PROVIDER_LABELS[p.name] ?? PROVIDER_LABELS[p.abbrev] ?? p.abbrev ?? p.name ?? '';
 }
 
 const STATUS_META = {
@@ -95,7 +129,7 @@ export default function LaunchColumn({
             >
               <div className="launch-col__row">
                 <span className="launch-col__provider">
-                  {l.launch_service_provider?.abbrev ?? l.launch_service_provider?.name}
+                  {providerLabel(l)}
                   {padLabel && <span className="launch-col__pad"> · {padLabel}</span>}
                 </span>
                 <span className={`badge ${cls}`}>{label}</span>

@@ -174,6 +174,8 @@ html, body, #root {
 .launch-col {
   flex-shrink: 0;
   width: 380px;
+  height: 100%;
+  max-height: var(--display-h);
   background: var(--panel);
   display: flex;
   flex-direction: column;
@@ -300,8 +302,10 @@ html, body, #root {
 
 /* ─── Logo ───────────────────────────────────────────────────── */
 .mh-logo {
-  padding: 16px 20px 10px;
+  padding: 14px 20px 10px;
   flex-shrink: 0;
+  max-height: 80px;
+  overflow: hidden;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -347,6 +351,8 @@ html, body, #root {
   padding: 10px 20px 14px;
   padding-left: 17px;
   flex-shrink: 0;
+  max-height: 165px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   border-top: 1px solid var(--border);
@@ -398,6 +404,7 @@ html, body, #root {
   letter-spacing: 0.14em;
   color: var(--text);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ─── Launch column content ──────────────────────────────────── */
@@ -405,14 +412,16 @@ html, body, #root {
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
 }
 
 .launch-col__item {
   width: 100%;
-  height: 72px;
+  height: 84px;
   flex-shrink: 0;
   text-align: left;
-  padding: 8px 20px;
+  padding: 10px 20px;
   border-bottom: 1px solid var(--border);
   border-left: 3px solid transparent;
   background: none;
@@ -420,7 +429,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: 5px;
   transition: border-left-color 0.1s, background 0.1s;
 }
 .launch-col__item:hover      { background: rgba(255, 255, 255, 0.03); }
@@ -904,7 +913,8 @@ html, body, #root {
   overflow: hidden;
 }
 
-.weather-panel__radar-fill {
+.weather-panel__radar-fill,
+.weather-panel__pads-fill {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -915,6 +925,12 @@ html, body, #root {
   flex: 1;
   height: 0;
   margin-bottom: 0;
+}
+
+.weather-panel__pads-fill .pad-map {
+  flex: 1;
+  min-height: 0;
+  height: auto;
 }
 
 .weather-panel__wind-block {
@@ -1534,13 +1550,15 @@ html, body, #root {
 }
 
 .settings-modal {
-  width: 480px;
+  width: 560px;
+  max-height: 640px;
   background: var(--bg);
   border: 1px solid var(--border2);
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow-y: auto;
 }
 
 .settings-modal__header {
@@ -1592,6 +1610,83 @@ html, body, #root {
   font-size: 12px;
   line-height: 1.5;
   color: var(--dim);
+}
+
+.settings-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-modal__section:last-child { border-bottom: none; padding-bottom: 0; }
+
+.settings-modal__section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.settings-modal__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.settings-modal__table td {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-modal__table tr:last-child td { border-bottom: none; }
+
+.settings-modal__table-label {
+  color: var(--text);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  width: 50%;
+}
+.settings-modal__table-value {
+  color: var(--accent);
+  letter-spacing: 0.14em;
+  text-align: right;
+  padding-right: 14px !important;
+}
+.settings-modal__table-ttl {
+  color: var(--dimmer);
+  letter-spacing: 0.18em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.settings-modal__active-site {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-modal__active-site-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.settings-modal__build {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--dimmer);
+  text-transform: uppercase;
 }
 
 /* ─── Status change pulse ────────────────────────────────────── */

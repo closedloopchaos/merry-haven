@@ -1,20 +1,19 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import CountdownClock from './CountdownClock.jsx';
+import { getSite, getSiteForLaunch } from '../data/sites.js';
 
-const STREAMS = [
-  { id: 'spacecoast', label: 'SPACE COAST', url: 'https://www.youtube.com/embed/Jm8wRjD3xVA?autoplay=1&mute=1' },
-  { id: 'starbase',   label: 'STARBASE',    url: 'https://www.youtube.com/embed/mhJRzQsLZGg?autoplay=1&mute=1' },
-  { id: 'mcgregor',   label: 'MCGREGOR',    url: 'https://www.youtube.com/embed/cOmmvhDQ2HM?autoplay=1&mute=1' },
-];
+const COUNTDOWN_STREAMS = {
+  spacecoast: { label: 'SPACE COAST', url: 'https://www.youtube.com/embed/Jm8wRjD3xVA?autoplay=1&mute=1' },
+  starbase:   { label: 'STARBASE',    url: 'https://www.youtube.com/embed/mhJRzQsLZGg?autoplay=1&mute=1' },
+};
 
-function autoSelectStream(launch) {
-  if (!launch) return STREAMS[0];
-  const loc = (launch.pad?.location?.name ?? '').toLowerCase();
-  const pad = (launch.pad?.name ?? '').toLowerCase();
-  if (loc.includes('boca chica') || loc.includes('starbase') || pad.includes('starbase')) return STREAMS[1];
-  if (loc.includes('mcgregor')) return STREAMS[2];
-  return STREAMS[0];
+function streamForLaunch(launch) {
+  if (!launch) return COUNTDOWN_STREAMS.spacecoast;
+  const siteId = getSiteForLaunch(launch);
+  const site = getSite(siteId);
+  const streamId = site?.streamId ?? 'spacecoast';
+  return COUNTDOWN_STREAMS[streamId] ?? COUNTDOWN_STREAMS.spacecoast;
 }
 
 function bandForMs(ms) {
@@ -41,7 +40,7 @@ const HUD_DECEL = [0.16, 1, 0.3, 1];
 export default function CountdownView({ launch, isTest, onDismiss }) {
   const band = useCountdownBand(launch?.net);
   if (!launch) return null;
-  const stream   = autoSelectStream(launch);
+  const stream   = streamForLaunch(launch);
   const pad      = launch.pad?.name ?? '';
   const location = launch.pad?.location?.name ?? '';
   const provider = launch.launch_service_provider?.abbrev ?? launch.launch_service_provider?.name ?? '';

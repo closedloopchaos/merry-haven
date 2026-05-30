@@ -13,6 +13,7 @@ import NewsTicker from './components/NewsTicker.jsx';
 import CountdownView from './components/CountdownView.jsx';
 import SettingsMenu from './components/SettingsMenu.jsx';
 import { useStatusChanges } from './hooks/useStatusChanges.js';
+import { useNews } from './hooks/useNews.js';
 import { getSite, getSiteForLaunch } from './data/sites.js';
 
 const TEST_COUNTDOWN_DURATION_MS = 90_000;
@@ -35,7 +36,8 @@ export default function App() {
   const activeSiteId = siteOverride ?? autoSiteId;
   const activeSite = getSite(activeSiteId);
 
-  const { weather } = useWeather(activeSite);
+  const { weather, lastFetched: weatherFetched } = useWeather(activeSite);
+  const { articles: newsArticles, lastFetched: newsFetched } = useNews();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [testCountdown, setTestCountdown] = useState(false);
@@ -124,7 +126,11 @@ export default function App() {
                 </div>
               )}
 
-              <CenterPanel launches={launches} site={activeSite} />
+              <CenterPanel
+                launches={launches}
+                site={activeSite}
+                onSelectSite={setSiteOverride}
+              />
 
               <div className="weather-col">
                 <WeatherPanel
@@ -148,7 +154,7 @@ export default function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
           >
-            <NewsTicker />
+            <NewsTicker articles={newsArticles} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -156,6 +162,10 @@ export default function App() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onTestCountdown={startTestCountdown}
+        activeSite={activeSite}
+        launchesFetched={launchFetched}
+        weatherFetched={weatherFetched}
+        newsFetched={newsFetched}
       />
     </div>
   );

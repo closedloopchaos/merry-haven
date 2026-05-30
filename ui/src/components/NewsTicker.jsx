@@ -1,8 +1,6 @@
-import { useNews } from '../hooks/useNews.js';
 import { getOnThisDay } from '../data/onThisDay.js';
 
-export default function NewsTicker() {
-  const { articles } = useNews();
+export default function NewsTicker({ articles = [] }) {
   const fact = getOnThisDay();
 
   // First item is the "on this day" almanac fact (not a link)

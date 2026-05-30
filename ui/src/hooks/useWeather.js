@@ -41,6 +41,7 @@ function parseObservation(obs) {
 export function useWeather(site) {
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState(null);
+  const [lastFetched, setLastFetched] = useState(null);
 
   const station = site?.nwsStation ?? '';
   const lat = site?.coords?.[1] ?? '';
@@ -66,6 +67,7 @@ export function useWeather(site) {
             ...parseObservation(data.observation),
             periods: data.forecast?.properties?.periods?.slice(0, 8) ?? [],
           });
+          setLastFetched(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
           setError(null);
         }
       } catch (err) {
@@ -81,5 +83,5 @@ export function useWeather(site) {
     };
   }, [station, lat, lon]);
 
-  return { weather, error };
+  return { weather, error, lastFetched };
 }

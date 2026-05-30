@@ -39,27 +39,43 @@ export default function PadMap({ launches = [], site }) {
     if (!svg) return;
 
     function onWheel(e) {
-      e.preventDefault();
-      const rect = svg.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
-      const factor = e.deltaY > 0 ? 1.20 : 1 / 1.20;
-      setVb(prev => {
-        if (!isFiniteNum(prev.w) || prev.w <= 0) return DEFAULT_VB;
-        const targetW = prev.w * factor;
-        const newW = clamp(targetW, MIN_W, MAX_W);
-        const newH = newW;
-        if (!isFiniteNum(newW) || newW <= 0) return prev;
-        const pxRaw = (e.clientX - rect.left) / rect.width;
-        const pyRaw = (e.clientY - rect.top)  / rect.height;
-        const px = clamp(isFiniteNum(pxRaw) ? pxRaw : 0.5, 0, 1);
-        const py = clamp(isFiniteNum(pyRaw) ? pyRaw : 0.5, 0, 1);
-        const cx = prev.x + prev.w * px;
-        const cy = prev.y + prev.h * py;
-        const nx = cx - newW * px;
-        const ny = cy - newH * py;
-        if (!isFiniteNum(nx) || !isFiniteNum(ny)) return prev;
-        return { x: clamp(nx, -newW * 0.9, 100), y: clamp(ny, -newH * 0.9, 100), w: newW, h: newH };
-      });
+      try {
+        e.preventDefault();
+        const rect = svg.getBoundingClientRect();
+        if (!rect || rect.width <= 0 || rect.height <= 0) return;
+        if (!isFiniteNum(e.clientX) || !isFiniteNum(e.clientY)) return;
+
+        const factor = e.deltaY > 0 ? 1.20 : 1 / 1.20;
+        setVb(prev => {
+          if (!isFiniteNum(prev.w) || prev.w <= 0) return DEFAULT_VB;
+          const targetW = prev.w * factor;
+          const newW = clamp(targetW, MIN_W, MAX_W);
+          if (!isFiniteNum(newW) || newW <= 0) return prev;
+          const newH = newW;
+
+          const pxRaw = (e.clientX - rect.left) / rect.width;
+          const pyRaw = (e.clientY - rect.top)  / rect.height;
+          const px = clamp(isFiniteNum(pxRaw) ? pxRaw : 0.5, 0, 1);
+          const py = clamp(isFiniteNum(pyRaw) ? pyRaw : 0.5, 0, 1);
+
+          const cx = prev.x + prev.w * px;
+          const cy = prev.y + prev.h * py;
+          if (!isFiniteNum(cx) || !isFiniteNum(cy)) return prev;
+
+          const nx = cx - newW * px;
+          const ny = cy - newH * py;
+          if (!isFiniteNum(nx) || !isFiniteNum(ny)) return prev;
+
+          return {
+            x: clamp(nx, -newW * 0.9, 100),
+            y: clamp(ny, -newH * 0.9, 100),
+            w: newW,
+            h: newH,
+          };
+        });
+      } catch (err) {
+        console.error('PadMap wheel error:', err);
+      }
     }
 
     svg.addEventListener('wheel', onWheel, { passive: false });
@@ -81,25 +97,40 @@ export default function PadMap({ launches = [], site }) {
   }, [vb.x, vb.y]);
 
   const handleMouseMove = useCallback((e) => {
-    if (!dragRef.current) return;
-    const rect = svgRef.current?.getBoundingClientRect();
-    if (!rect || rect.width <= 0 || rect.height <= 0) return;
-    const dx = (e.clientX - dragRef.current.sx) / rect.width  * vb.w;
-    const dy = (e.clientY - dragRef.current.sy) / rect.height * vb.h;
-    if (!isFiniteNum(dx) || !isFiniteNum(dy)) return;
-    setVb(v => ({
-      ...v,
-      x: clamp(dragRef.current.vbx - dx, -v.w * 0.9, 100),
-      y: clamp(dragRef.current.vby - dy, -v.h * 0.9, 100),
-    }));
+    try {
+      if (!dragRef.current) return;
+      const rect = svgRef.current?.getBoundingClientRect();
+      if (!rect || rect.width <= 0 || rect.height <= 0) return;
+      if (!isFiniteNum(e.clientX) || !isFiniteNum(e.clientY)) return;
+      const dx = (e.clientX - dragRef.current.sx) / rect.width  * vb.w;
+      const dy = (e.clientY - dragRef.current.sy) / rect.height * vb.h;
+      if (!isFiniteNum(dx) || !isFiniteNum(dy)) return;
+      setVb(v => {
+        if (!isFiniteNum(v.w) || !isFiniteNum(v.h)) return DEFAULT_VB;
+        return {
+          ...v,
+          x: clamp(dragRef.current.vbx - dx, -v.w * 0.9, 100),
+          y: clamp(dragRef.current.vby - dy, -v.h * 0.9, 100),
+        };
+      });
+    } catch (err) {
+      console.error('PadMap drag error:', err);
+    }
   }, [vb.w, vb.h]);
 
   const handleMouseUp = useCallback(() => { dragRef.current = null; }, []);
 
   const reset = useCallback(() => setVb(DEFAULT_VB), []);
 
-  const zoomPct = Math.round((DEFAULT_VB.w / vb.w) * 100);
-  const labelScale = vb.w / DEFAULT_VB.w; // shrink text as we zoom in so it doesn't dominate
+  // Defensive: guarantee viewBox values are always finite + positive
+  const safeVb = {
+    x: isFiniteNum(vb.x) ? vb.x : 0,
+    y: isFiniteNum(vb.y) ? vb.y : 0,
+    w: isFiniteNum(vb.w) && vb.w > 0 ? vb.w : 100,
+    h: isFiniteNum(vb.h) && vb.h > 0 ? vb.h : 100,
+  };
+  const zoomPct = Math.round((DEFAULT_VB.w / safeVb.w) * 100);
+  const labelScale = safeVb.w / DEFAULT_VB.w;
 
   return (
     <div className="pad-map">
@@ -111,7 +142,7 @@ export default function PadMap({ launches = [], site }) {
       <svg
         ref={svgRef}
         className="pad-map__svg"
-        viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
+        viewBox={`${safeVb.x} ${safeVb.y} ${safeVb.w} ${safeVb.h}`}
         preserveAspectRatio="xMidYMid meet"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

@@ -63,7 +63,7 @@ export const SITES = {
     label: 'VANDENBERG',
     coords: [-120.572, 34.742],
     nwsStation: 'KVBG',
-    streamId: 'vandenberg',
+    streamId: null, // no dedicated VBG webcast — falls back to default
     radarLat: 34.74,
     radarLon: -120.57,
     radarZoom: 8,

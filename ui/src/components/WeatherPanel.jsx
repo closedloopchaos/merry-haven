@@ -203,7 +203,9 @@ export default function WeatherPanel({
         )}
 
         {activeTab === 'pads' && (
-          <PadMap launches={launches} site={site} />
+          <div className="weather-panel__pads-fill">
+            <PadMap launches={launches} site={site} />
+          </div>
         )}
       </div>
     </div>
