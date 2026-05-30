@@ -126,11 +126,7 @@ export default function App() {
                 </div>
               )}
 
-              <CenterPanel
-                launches={launches}
-                site={activeSite}
-                onSelectSite={setSiteOverride}
-              />
+              <CenterPanel site={activeSite} />
 
               <div className="weather-col">
                 <WeatherPanel

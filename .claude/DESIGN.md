@@ -244,7 +244,6 @@ These all make Merry Haven look like a TUI or a Grafana clone. They are banned.
 | Site definitions | `ui/src/data/sites.js` |
 | Site-aware API | `api/server.js` (`/api/weather?station=&lat=&lon=`) |
 | Site-aware weather hook | `ui/src/hooks/useWeather.js` |
-| Globe | `ui/src/components/TimelineGlobe.jsx` + `ui/src/data/orbits.js` |
 
 ---
 
@@ -294,16 +293,17 @@ The sync is bidirectional but asymmetric:
 
 ## 10. No-scroll layout discipline
 
-The Corsair Xeneon Edge is a hard-locked **2560×720**. Nothing on this dashboard ever scrolls — anything that doesn't fit is either restructured or clipped at a clean boundary.
+The Corsair Xeneon Edge is a hard-locked **2560×720** that lives on a wall **24/7**. This is a glanceable launch-ops display, not a desktop app — the user is not at a keyboard, will not be expected to scroll, and will rarely interact. Everything readable at any moment must fit on screen at that moment.
+
+**No surface ever scrolls.** Not via wheel, not via touch, not via keyboard. Anything that doesn't fit is either restructured to fit or capped to the number of items that do.
 
 ### Rules
 
 - `.app` is `height: var(--display-h); overflow: hidden`. No exceptions.
 - Every column constrains its content to fit. Use `overflow: hidden` on the column root, not `overflow: auto`.
-- Long lists (launch column, weather forecast cells, etc.) use **fixed item heights** so partial-item clipping happens at predictable boundaries.
-- For lists where some items will overflow, apply a `mask-image` linear-gradient fade at the bottom (`black 92% → transparent 100%`) so the cutoff reads as intentional rather than truncated.
-- Hero blocks get explicit `max-height` so they can't grow if content varies (long mission names, extra metadata, etc.).
-- Modal `max-height: 640px` with `overflow-y: auto` is the **only** allowed scrollable surface, and only because it's transient.
+- **Cap list counts, don't clip items.** If 5 of 12 launches fit in the available space, render only 5. Truncating items mid-height is unreadable. `launches.slice(1, N)` with N chosen so items render at their natural height is the pattern, not `overflow: hidden` on a long list.
+- Hero blocks get explicit `max-height` so they can't grow if content varies (long mission names, extra metadata, etc.). The intent of the cap is to make the column predictable, not to clip the hero itself.
+- Modal `max-height: 640px` with `overflow-y: auto` is the **only** allowed scrollable surface, and only because it's a transient interaction surface that's hidden by default.
 
 ### Fixed-height components
 
@@ -312,7 +312,7 @@ The Corsair Xeneon Edge is a hard-locked **2560×720**. Nothing on this dashboar
 | `.launch-col` | `height: 100%; max-height: var(--display-h)` |
 | `.launch-col .mh-logo` | `max-height: 80px` |
 | `.launch-col__t0-hero` | `max-height: 165px` |
-| `.launch-col__item` | `height: 84px` (uniform) |
+| `.launch-col__list` | Renders `launches.slice(1, 5)` — at most 4 items, sized naturally to ~95px each so all are fully readable |
 | `.launch-detail-col` | `width: 440px`, body `overflow: hidden` |
 | `.weather-col` | `width: 760px`, body `overflow: hidden` |
 | `.editorial__body` | Content sized to fit `~680px` with no scroll — drop cap removed, lede clamped to 3 lines, footnotes folded into specs grid |
@@ -324,24 +324,7 @@ If a new element doesn't fit, the answer is **never** "add a scrollbar." It's ei
 
 ---
 
-## 11. Globe view conventions
-
-`TimelineGlobe.jsx` renders the orbital trajectory in the timeline tab. Conventions:
-
-- **Sphere `R = W * 0.36`** — the planet is intentionally smaller than half the viewBox so the lifted orbit fits comfortably with margin for atmosphere and pad labels.
-- **`ORBIT_LIFT = 0.22`** — the orbital plane is projected at `R(1 + 0.22)` from the globe center, which is the geometrically correct screen position for a point at `0.22 × R` altitude in orthographic projection. This visibly arcs the orbit above the planet (not skimming the surface).
-- **Ascent path** interpolates lift from 0 at the pad to full `ORBIT_LIFT` over the first 40° of arc — the rocket visibly climbs.
-- **Atmosphere halo** sits at `R + 16px` (thin layer above surface, below orbit). A faint dashed `R × (1 + ORBIT_LIFT)` ring is rendered as a visual reference for orbit altitude.
-- **Surface content** (graticule, land fill, ground track) is clipped to the sphere via `<clipPath>` so it never extends past the visible hemisphere.
-- **Glow filter** on ascent + pad marker via `feGaussianBlur stdDeviation="2.6"`.
-
-### Limitation — inclination data
-
-Pre-launch orbital inclination in degrees is **not available in any free public API.** LL2 exposes orbit name and abbrev (`LEO`, `GTO`, `SSO`) but no number. The values in `data/orbits.js` are heuristic estimates by orbit class plus a hand-curated mission-name override table (Starlink shells, ISS resupply). Any displayed trajectory is approximate — explicit "EST" labeling is on the table for a future pass.
-
----
-
-## 12. When adding something new
+## 11. When adding something new
 
 Before writing any JSX/CSS:
 

@@ -110,7 +110,7 @@ export default function LaunchColumn({
       <div className="launch-col__list">
         {loading && launches.length === 0 && <div className="panel-note">FETCHING</div>}
         {!loading && launches.length === 0 && <div className="panel-note">NO LAUNCHES SCHEDULED</div>}
-        {launches.slice(1).map((l, i) => {
+        {launches.slice(1, 5).map((l, i) => {
           const { label, cls } = STATUS_META[l.status?.abbrev] ?? { label: '??', cls: 'badge--tbd' };
           const dayLabel = relativeDay(l.net);
           const padLabel = extractPad(l);
@@ -128,22 +128,20 @@ export default function LaunchColumn({
               onClick={() => onSelectLaunch(isSelected ? null : l.id)}
             >
               <div className="launch-col__row">
-                <span className="launch-col__provider">
-                  {providerLabel(l)}
-                  {padLabel && <span className="launch-col__pad"> · {padLabel}</span>}
-                </span>
+                <span className="launch-col__provider">{providerLabel(l)}</span>
                 <span className={`badge ${cls}`}>{label}</span>
               </div>
               <div className="launch-col__name">{l.name}</div>
+              <div className="launch-col__row launch-col__row--meta">
+                {padLabel && <span className="launch-col__pad">{padLabel}</span>}
+                {prob != null && (
+                  <span className={`launch-col__prob${prob >= 80 ? ' launch-col__prob--high' : ''}`}>
+                    {prob}%
+                  </span>
+                )}
+              </div>
               <div className="launch-col__row launch-col__row--bottom">
-                <span className="launch-col__bottom-left">
-                  {dayLabel && <span className="launch-col__day">{dayLabel}</span>}
-                  {prob != null && (
-                    <span className={`launch-col__prob${prob >= 80 ? ' launch-col__prob--high' : ''}`}>
-                      {prob}%
-                    </span>
-                  )}
-                </span>
+                {dayLabel && <span className="launch-col__day">{dayLabel}</span>}
                 <CountdownClock netTime={l.net} className="launch-list__countdown" />
               </div>
             </button>

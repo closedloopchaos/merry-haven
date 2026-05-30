@@ -2,12 +2,10 @@ import { useState } from 'react';
 import { getTimeline, detectFamily } from '../data/trajectories.js';
 import TimelineTape from './TimelineTape.jsx';
 import TimelineList from './TimelineList.jsx';
-import TimelineGlobe from './TimelineGlobe.jsx';
 
 const VIEWS = [
-  { id: 'tape',  label: 'TAPE'  },
-  { id: 'list',  label: 'LIST'  },
-  { id: 'globe', label: 'GLOBE' },
+  { id: 'tape', label: 'TAPE' },
+  { id: 'list', label: 'LIST' },
 ];
 
 function formatT(seconds) {
@@ -91,26 +89,21 @@ export default function LaunchTimeline({ launch }) {
             onClick={handleClick}
           />
         )}
-        {view === 'globe' && (
-          <TimelineGlobe launch={launch} />
-        )}
       </div>
 
-      {view !== 'globe' && (
-        <div className="timeline__detail">
-          {activeMilestone ? (
-            <>
-              <span className="timeline__detail-time">{formatT(activeMilestone.t)}</span>
-              <span className="timeline__detail-name">{activeMilestone.name}</span>
-              <span className="timeline__detail-note">{activeMilestone.note}</span>
-            </>
-          ) : (
-            <span className="timeline__detail-hint">
-              HOVER A MILESTONE FOR DETAIL · CLICK TO PIN
-            </span>
-          )}
-        </div>
-      )}
+      <div className="timeline__detail">
+        {activeMilestone ? (
+          <>
+            <span className="timeline__detail-time">{formatT(activeMilestone.t)}</span>
+            <span className="timeline__detail-name">{activeMilestone.name}</span>
+            <span className="timeline__detail-note">{activeMilestone.note}</span>
+          </>
+        ) : (
+          <span className="timeline__detail-hint">
+            HOVER A MILESTONE FOR DETAIL · CLICK TO PIN
+          </span>
+        )}
+      </div>
     </div>
   );
 }

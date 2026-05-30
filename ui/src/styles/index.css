@@ -193,33 +193,16 @@ html, body, #root {
   flex-direction: column;
 }
 
-.center-panel__stream-tabs {
+.center-panel__stream-label {
   flex-shrink: 0;
-  display: flex;
-  gap: 28px;
-  padding: 8px 16px 10px;
-  background: var(--bg);
-}
-
-.center-panel__stream-tab {
-  font-family: var(--font-display);
-  font-size: 22px;
-  letter-spacing: 0.04em;
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
   color: var(--dim);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  padding: 0 0 4px;
-  cursor: pointer;
-  line-height: 1;
-  transition: color 0.1s ease, border-color 0.1s ease;
-}
-
-.center-panel__stream-tab:hover { color: var(--text); }
-
-.center-panel__stream-tab.is-active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
 }
 
 .center-panel__stream {
@@ -228,6 +211,42 @@ html, body, #root {
   min-height: 0;
   border: none;
   display: block;
+}
+
+.center-panel__no-stream {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+}
+
+.center-panel__no-stream-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.center-panel__no-stream-site {
+  font-family: var(--font-display);
+  font-size: 72px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.center-panel__no-stream-note {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--dimmer);
+  text-transform: uppercase;
 }
 
 /* Right column — weather */
@@ -412,24 +431,20 @@ html, body, #root {
   flex: 1;
   overflow: hidden;
   min-height: 0;
-  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
 }
 
 .launch-col__item {
   width: 100%;
-  height: 84px;
   flex-shrink: 0;
   text-align: left;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border);
   border-left: 3px solid transparent;
   background: none;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 5px;
+  gap: 2px;
   transition: border-left-color 0.1s, background 0.1s;
 }
 .launch-col__item:hover      { background: rgba(255, 255, 255, 0.03); }
@@ -441,12 +456,11 @@ html, body, #root {
   align-items: baseline;
   gap: 8px;
 }
-.launch-col__row--bottom { margin-top: 2px; }
-.launch-col__bottom-left {
-  display: inline-flex;
-  align-items: baseline;
+.launch-col__row--meta {
+  margin-top: 4px;
   gap: 10px;
 }
+.launch-col__row--bottom { margin-top: 4px; }
 
 .launch-col__pad {
   font-family: var(--font-mono);
@@ -1857,69 +1871,6 @@ html, body, #root {
   font-size: 13px;
   color: var(--dim);
   line-height: 1.4;
-}
-
-/* ─── TimelineGlobe (holo globe) ────────────────────────────── */
-.timeline-globe-wrap {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.timeline-globe__chrome {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.timeline-globe__readout {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.timeline-globe__lbl { color: var(--dim); }
-.timeline-globe__val { color: var(--text); }
-.timeline-globe__sep { color: var(--dimmer); }
-
-.timeline-globe__recenter {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  color: var(--dim);
-  cursor: pointer;
-  transition: color 0.1s;
-  text-transform: uppercase;
-}
-.timeline-globe__recenter:hover { color: var(--accent); }
-
-.timeline-globe {
-  width: 100%;
-  flex: 1;
-  min-height: 380px;
-  cursor: grab;
-  display: block;
-  user-select: none;
-}
-.timeline-globe:active { cursor: grabbing; }
-
-.timeline-globe__hint {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  color: var(--dimmer);
-  text-transform: uppercase;
-  margin: 0;
-  text-align: center;
 }
 
 .timeline__detail {

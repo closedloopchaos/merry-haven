@@ -1,6 +1,6 @@
 // Site definitions for multi-range support.
 //
-// `coords` is [lon, lat] — d3-geo convention.
+// `coords` is [lon, lat].
 // `pads` use 0–100 SVG space, x measured left→right, y measured top→bottom.
 // `matchTerms` are lowercase substrings tested against pad name + location.
 
