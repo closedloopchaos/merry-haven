@@ -241,6 +241,33 @@ html, body, #root {
 }
 
 
+/* Site tabs — which range you're looking at */
+.weather-panel__site-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.weather-panel__site-tab {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--dim);
+  background: none;
+  border: none;
+  padding: 8px 0;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: color 0.1s, background 0.1s;
+}
+.weather-panel__site-tab:hover    { color: var(--text); }
+.weather-panel__site-tab.is-active {
+  color: var(--accent);
+  background: rgba(230,57,70,0.06);
+}
+
 /* Range subtabs */
 .weather-panel__tabs {
   display: flex;
@@ -317,7 +344,7 @@ html, body, #root {
 
 /* ─── T0 hero block ──────────────────────────────────────────── */
 .launch-col__t0-hero {
-  padding: 16px 20px 24px;
+  padding: 10px 20px 14px;
   padding-left: 17px;
   flex-shrink: 0;
   display: flex;
@@ -336,20 +363,20 @@ html, body, #root {
 
 .launch-col__t0-name {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 20px;
   letter-spacing: 0.02em;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 10px;
-  margin-bottom: 6px;
+  margin-top: 6px;
+  margin-bottom: 4px;
   line-height: 1;
 }
 
 .launch-col__t0-clock {
   font-family: var(--font-display) !important;
-  font-size: 72px !important;
+  font-size: 64px !important;
   letter-spacing: -0.01em !important;
   line-height: 0.9 !important;
   color: var(--text) !important;
@@ -359,8 +386,18 @@ html, body, #root {
 .launch-col__t0-status {
   display: flex;
   align-items: baseline;
-  gap: 14px;
-  margin-top: 14px;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.launch-col__t0-net {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--text);
+  text-transform: uppercase;
 }
 
 /* ─── Launch column content ──────────────────────────────────── */
@@ -372,19 +409,21 @@ html, body, #root {
 
 .launch-col__item {
   width: 100%;
+  height: 72px;
+  flex-shrink: 0;
   text-align: left;
-  padding: 12px 20px;
+  padding: 8px 20px;
   border-bottom: 1px solid var(--border);
   border-left: 3px solid transparent;
   background: none;
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 2px;
   transition: border-left-color 0.1s, background 0.1s;
 }
 .launch-col__item:hover      { background: rgba(255, 255, 255, 0.03); }
-.launch-col__item.is-next    { border-left-color: var(--accent); }
 .launch-col__item.is-selected { background: rgba(230, 57, 70, 0.08); border-left-color: var(--accent); }
 
 .launch-col__row {
@@ -393,11 +432,12 @@ html, body, #root {
   align-items: baseline;
   gap: 8px;
 }
-.launch-col__row--meta {
-  margin-top: 4px;
+.launch-col__row--bottom { margin-top: 2px; }
+.launch-col__bottom-left {
+  display: inline-flex;
+  align-items: baseline;
   gap: 10px;
 }
-.launch-col__row--bottom { margin-top: 4px; }
 
 .launch-col__pad {
   font-family: var(--font-mono);

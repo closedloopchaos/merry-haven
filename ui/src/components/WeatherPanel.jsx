@@ -2,6 +2,7 @@ import { useState } from 'react';
 import RadarMap from './RadarMap.jsx';
 import PadMap from './PadMap.jsx';
 import LaunchTimeline from './LaunchTimeline.jsx';
+import { SITES, SITE_ORDER } from '../data/sites.js';
 
 const CARDINALS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 
@@ -17,7 +18,13 @@ function formatTime(iso) {
   } catch { return ''; }
 }
 
-export default function WeatherPanel({ weather, launches = [], selectedLaunch }) {
+export default function WeatherPanel({
+  weather,
+  launches = [],
+  selectedLaunch,
+  site,
+  onSelectSite,
+}) {
   const [activeTab, setActiveTab] = useState(() => {
     try { return localStorage.getItem('mh-range-tab') || 'forecast'; } catch { return 'forecast'; }
   });
@@ -27,10 +34,29 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch })
     try { localStorage.setItem('mh-range-tab', t); } catch {}
   }
 
+  const siteTabs = (
+    <div className="weather-panel__site-tabs">
+      {SITE_ORDER.map(id => {
+        const s = SITES[id];
+        const isActive = site?.id === id;
+        return (
+          <button
+            key={id}
+            className={`weather-panel__site-tab ${isActive ? 'is-active' : ''}`}
+            onClick={() => onSelectSite?.(id)}
+          >
+            {s.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   if (!weather) {
     return (
       <div className="weather-panel">
         <div className="panel-header">RANGE</div>
+        {siteTabs}
         <div className="panel-note">FETCHING</div>
       </div>
     );
@@ -47,12 +73,17 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch })
       }, { i: -1, d: Infinity }).i
     : -1;
 
+  const isSpaceCoast = site?.id === 'spacecoast';
+  const radarLabel = `RADAR / ${site?.nwsStation ?? ''}`;
+
   return (
     <div className="weather-panel">
       <div className="panel-header">
         RANGE
         {obsTime && <span className="panel-header__fetched">OBS {obsTime}</span>}
       </div>
+
+      {siteTabs}
 
       <div className="weather-panel__tabs">
         <button
@@ -84,7 +115,6 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch })
       <div className="weather-panel__body">
         {activeTab === 'forecast' && (
           <>
-            {/* Wind block */}
             <div className="weather-panel__wind-block">
               <div
                 className="weather-panel__wind-arrow"
@@ -108,7 +138,6 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch })
               </div>
             </div>
 
-            {/* Stats grid */}
             <div className="weather-panel__stats">
               <div className="weather-panel__stat">
                 <label>TEMP</label>
@@ -132,7 +161,6 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch })
               </div>
             </div>
 
-            {/* Hourly forecast strip */}
             {periods.length > 0 && (
               <>
                 <div className="weather-panel__section-label">HOURLY</div>
@@ -150,31 +178,32 @@ export default function WeatherPanel({ weather, launches = [], selectedLaunch })
               </>
             )}
 
-            {/* SLD-45 launch forecast button (anchored at bottom) */}
-            <a
-              href="https://45thweathersquadron.nebula.spaceforce.mil/pages/launchForecastSupport.html"
-              target="_blank"
-              rel="noreferrer"
-              className="weather-panel__sld45-btn"
-            >
-              OPEN SLD-45 WEATHER FORECAST
-            </a>
+            {isSpaceCoast && (
+              <a
+                href="https://45thweathersquadron.nebula.spaceforce.mil/pages/launchForecastSupport.html"
+                target="_blank"
+                rel="noreferrer"
+                className="weather-panel__sld45-btn"
+              >
+                OPEN SLD-45 WEATHER FORECAST
+              </a>
+            )}
           </>
         )}
 
         {activeTab === 'radar' && (
           <div className="weather-panel__radar-fill">
-            <div className="weather-panel__section-label">RADAR / KMLB</div>
-            <RadarMap />
+            <div className="weather-panel__section-label">{radarLabel}</div>
+            <RadarMap site={site} />
           </div>
         )}
 
         {activeTab === 'timeline' && (
-          <LaunchTimeline launch={selectedLaunch || launches[0]} />
+          <LaunchTimeline launch={selectedLaunch || launches[0]} site={site} />
         )}
 
         {activeTab === 'pads' && (
-          <PadMap launches={launches} />
+          <PadMap launches={launches} site={site} />
         )}
       </div>
     </div>

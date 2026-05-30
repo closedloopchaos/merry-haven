@@ -27,6 +27,16 @@ function relativeDay(net) {
   return `IN ${days}D`;
 }
 
+function formatNet(iso) {
+  if (!iso) return null;
+  try {
+    return new Date(iso).toLocaleString('en-US', {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    });
+  } catch { return null; }
+}
+
 export default function LaunchColumn({
   launches,
   loading,
@@ -56,7 +66,9 @@ export default function LaunchColumn({
           <div className="launch-col__t0-name">{nextLaunch.name}</div>
           <div className="launch-col__t0-status">
             <span className={`badge badge--lg ${nextStatus.cls}`}>{nextStatus.label}</span>
-            {lastFetched && <span className="panel-header__fetched">{lastFetched}</span>}
+            {formatNet(nextLaunch.net) && (
+              <span className="launch-col__t0-net">{formatNet(nextLaunch.net)}</span>
+            )}
           </div>
         </div>
       )}
@@ -84,20 +96,20 @@ export default function LaunchColumn({
               <div className="launch-col__row">
                 <span className="launch-col__provider">
                   {l.launch_service_provider?.abbrev ?? l.launch_service_provider?.name}
+                  {padLabel && <span className="launch-col__pad"> · {padLabel}</span>}
                 </span>
                 <span className={`badge ${cls}`}>{label}</span>
               </div>
               <div className="launch-col__name">{l.name}</div>
-              <div className="launch-col__row launch-col__row--meta">
-                {padLabel && <span className="launch-col__pad">{padLabel}</span>}
-                {prob != null && (
-                  <span className={`launch-col__prob${prob >= 80 ? ' launch-col__prob--high' : ''}`}>
-                    {prob}%
-                  </span>
-                )}
-              </div>
               <div className="launch-col__row launch-col__row--bottom">
-                {dayLabel && <span className="launch-col__day">{dayLabel}</span>}
+                <span className="launch-col__bottom-left">
+                  {dayLabel && <span className="launch-col__day">{dayLabel}</span>}
+                  {prob != null && (
+                    <span className={`launch-col__prob${prob >= 80 ? ' launch-col__prob--high' : ''}`}>
+                      {prob}%
+                    </span>
+                  )}
+                </span>
                 <CountdownClock netTime={l.net} className="launch-list__countdown" />
               </div>
             </button>

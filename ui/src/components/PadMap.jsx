@@ -1,14 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
-
-const PADS = [
-  { id: 'LC-39B',  short: '39B', match: ['39b', 'la-39b', 'lc-39b'],                              x: 30, y: 12, site: 'KSC' },
-  { id: 'LC-39A',  short: '39A', match: ['39a', 'la-39a', 'lc-39a'],                              x: 32, y: 22, site: 'KSC' },
-  { id: 'SLC-40',  short: '40',  match: ['slc-40', 'space launch complex 40', 'lc-40'],           x: 38, y: 42, site: 'CCSFS' },
-  { id: 'SLC-41',  short: '41',  match: ['slc-41', 'space launch complex 41', 'lc-41'],           x: 41, y: 54, site: 'CCSFS' },
-  { id: 'SLC-37',  short: '37',  match: ['slc-37', 'lc-37'],                                       x: 42, y: 68, site: 'CCSFS' },
-  { id: 'LC-36',   short: '36',  match: ['lc-36', 'launch complex 36'],                            x: 43, y: 78, site: 'CCSFS' },
-  { id: 'SLC-46',  short: '46',  match: ['slc-46', 'lc-46'],                                       x: 46, y: 88, site: 'CCSFS' },
-];
+import { getSite } from '../data/sites.js';
 
 const DEFAULT_VB = { x: 0, y: 0, w: 100, h: 100 };
 const MIN_W = 4;     // ~25x max zoom
@@ -32,7 +23,12 @@ function findNextLaunchForPad(pad, launches) {
   return launches.find(l => pad.match.some(m => name(l).includes(m))) ?? null;
 }
 
-export default function PadMap({ launches = [] }) {
+export default function PadMap({ launches = [], site }) {
+  const resolvedSite = site ?? getSite('spacecoast');
+  const pads = resolvedSite.pads ?? [];
+  const siteLabels = resolvedSite.siteLabels ?? [];
+  const coastlineX = resolvedSite.coastline?.x ?? null;
+
   const [vb, setVb] = useState(DEFAULT_VB);
   const dragRef = useRef(null);
   const svgRef = useRef(null);
@@ -70,7 +66,7 @@ export default function PadMap({ launches = [] }) {
     return () => svg.removeEventListener('wheel', onWheel);
   }, []);
 
-  const padActivity = PADS.map(pad => ({
+  const padActivity = pads.map(pad => ({
     ...pad,
     next: findNextLaunchForPad(pad, launches),
   }));
@@ -122,20 +118,18 @@ export default function PadMap({ launches = [] }) {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {/* Coastline hint — single dim vertical line on the right */}
-        <line x1="60" y1="-10" x2="60" y2="110" stroke="rgba(255,255,255,0.10)" strokeWidth={0.3 * labelScale} />
-
-        {/* Banana River hint between KSC and CCSFS */}
-        <path d="M 0 32 Q 25 32 32 38 T 60 60"
-              fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={0.5 * labelScale} />
+        {/* Coastline hint */}
+        {coastlineX != null && (
+          <line x1={coastlineX} y1="-10" x2={coastlineX} y2="110"
+                stroke="rgba(255,255,255,0.10)" strokeWidth={0.3 * labelScale} />
+        )}
 
         {/* Site name labels */}
-        <text x="2" y="6" fontSize={3.2 * labelScale}
-              fontFamily="JetBrains Mono, monospace"
-              fill="rgba(255,255,255,0.5)" letterSpacing="0.18em">KSC</text>
-        <text x="2" y="38" fontSize={3.2 * labelScale}
-              fontFamily="JetBrains Mono, monospace"
-              fill="rgba(255,255,255,0.5)" letterSpacing="0.18em">CCSFS</text>
+        {siteLabels.map((sl, i) => (
+          <text key={i} x={sl.x} y={sl.y} fontSize={3.2 * labelScale}
+                fontFamily="JetBrains Mono, monospace"
+                fill="rgba(255,255,255,0.5)" letterSpacing="0.18em">{sl.text}</text>
+        ))}
 
         {padActivity.map(pad => {
           const active = pad.id === soonest?.id;

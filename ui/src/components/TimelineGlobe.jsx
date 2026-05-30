@@ -64,10 +64,10 @@ export default function TimelineGlobe({ launch }) {
 
   const W = 700;
   const H = 700;
-  const R = W * 0.46;
+  const R = W * 0.36;
   const CX = W / 2;
   const CY = H / 2;
-  const ORBIT_LIFT = 0.055;
+  const ORBIT_LIFT = 0.22;
 
   const projection = geoOrthographic()
     .scale(R)
@@ -167,8 +167,13 @@ export default function TimelineGlobe({ launch }) {
           </clipPath>
         </defs>
 
-        {/* Atmospheric halo */}
-        <circle cx={CX} cy={CY} r={R + 14} fill="url(#halo)" pointerEvents="none" />
+        {/* Atmospheric halo — thin layer just above the surface */}
+        <circle cx={CX} cy={CY} r={R + 16} fill="url(#halo)" pointerEvents="none" />
+
+        {/* Faint orbit-altitude ring marker (visual reference for the elevation) */}
+        <circle cx={CX} cy={CY} r={R * (1 + ORBIT_LIFT)}
+                fill="none" stroke="rgba(255,255,255,0.06)"
+                strokeWidth="0.5" strokeDasharray="2 4" pointerEvents="none" />
 
         {/* Sphere base — dark ocean tone */}
         <circle cx={CX} cy={CY} r={R} fill="rgba(0,0,0,0.55)" />

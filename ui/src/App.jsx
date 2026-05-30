@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLaunches } from './hooks/useLaunches.js';
 import { useWeather } from './hooks/useWeather.js';
@@ -13,19 +13,30 @@ import NewsTicker from './components/NewsTicker.jsx';
 import CountdownView from './components/CountdownView.jsx';
 import SettingsMenu from './components/SettingsMenu.jsx';
 import { useStatusChanges } from './hooks/useStatusChanges.js';
+import { getSite, getSiteForLaunch } from './data/sites.js';
 
 const TEST_COUNTDOWN_DURATION_MS = 90_000;
 const TEST_COUNTDOWN_OFFSET_MS   = 60_000;
 
 export default function App() {
   const { launches, loading: launchLoading, lastFetched: launchFetched } = useLaunches();
-  const { weather } = useWeather();
   const { launchMode, countdownMode, activeLaunch, dismiss, dismissCountdown } = useLaunchWatch(launches);
   const statusChangedIds = useStatusChanges(launches);
   const [selectedId, setSelectedId] = useState(null);
   const displayLaunch = selectedId
     ? (launches.find(l => l.id === selectedId) ?? launches[0] ?? null)
     : (launches[0] ?? null);
+
+  // Site state: defaults to the selected launch's site, can be overridden
+  // by clicking a site tab. Override clears whenever selection changes.
+  const autoSiteId = getSiteForLaunch(displayLaunch);
+  const [siteOverride, setSiteOverride] = useState(null);
+  useEffect(() => { setSiteOverride(null); }, [selectedId]);
+  const activeSiteId = siteOverride ?? autoSiteId;
+  const activeSite = getSite(activeSiteId);
+
+  const { weather } = useWeather(activeSite);
+
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [testCountdown, setTestCountdown] = useState(false);
   const testNetTimeRef = useRef(null);
@@ -113,13 +124,15 @@ export default function App() {
                 </div>
               )}
 
-              <CenterPanel launches={launches} />
+              <CenterPanel launches={launches} site={activeSite} />
 
               <div className="weather-col">
                 <WeatherPanel
                   weather={weather}
                   launches={launches}
                   selectedLaunch={displayLaunch}
+                  site={activeSite}
+                  onSelectSite={setSiteOverride}
                 />
               </div>
             </motion.div>

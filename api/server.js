@@ -4,7 +4,6 @@ import cors from 'cors';
 const app = express();
 app.use(cors());
 
-// In-memory cache: key -> { data, timestamp }
 const cache = new Map();
 
 function isFresh(key, ttlMs) {
@@ -31,17 +30,30 @@ async function fetchCached(key, url, ttlMs, headers = {}) {
   return data;
 }
 
-// Space Coast: location 12 = CCSFS, location 27 = KSC
+// LL2 location IDs: 11 Vandenberg · 12 CCSFS · 27 KSC · 143 SpaceX South Texas
 const LL2_URL =
   'https://ll.thespacedevs.com/2.2.0/launch/upcoming/' +
-  '?location__ids=12,27&limit=10&mode=detailed';
-
-const NWS_OBS_URL = 'https://api.weather.gov/stations/KXMR/observations/latest';
-const NWS_FORECAST_URL = 'https://api.weather.gov/gridpoints/MLB/56,65/forecast/hourly';
-
-const NWS_HEADERS = { Accept: 'application/geo+json' };
+  '?location__ids=11,12,27,143&limit=15&mode=detailed';
 
 const SFN_URL = 'https://api.spaceflightnewsapi.net/v4/articles/?limit=15&ordering=-published_at';
+
+const NWS_HEADERS = { Accept: 'application/geo+json' };
+const DEFAULT_STATION = 'KXMR';
+// Fallback forecast for Space Coast when no lat/lon is given
+const DEFAULT_FORECAST_URL = 'https://api.weather.gov/gridpoints/MLB/56,65/forecast/hourly';
+
+// Resolve a lat/lon to its NWS hourly-forecast URL via the /points endpoint.
+// /points data is essentially static — cache 24h.
+async function resolveForecastUrl(lat, lon) {
+  const key = `points-${lat}-${lon}`;
+  const data = await fetchCached(
+    key,
+    `https://api.weather.gov/points/${lat},${lon}`,
+    24 * 60 * 60 * 1000,
+    NWS_HEADERS,
+  );
+  return data?.properties?.forecastHourly ?? null;
+}
 
 app.get('/api/launches', async (req, res) => {
   try {
@@ -55,9 +67,26 @@ app.get('/api/launches', async (req, res) => {
 
 app.get('/api/weather', async (req, res) => {
   try {
+    const station = (req.query.station ?? DEFAULT_STATION).toString();
+    const lat = req.query.lat?.toString();
+    const lon = req.query.lon?.toString();
+
+    const obsUrl = `https://api.weather.gov/stations/${station}/observations/latest`;
+    const obsKey = `weather-obs-${station}`;
+
+    let forecastUrl = DEFAULT_FORECAST_URL;
+    let forecastKey = 'weather-forecast-default';
+    if (lat && lon) {
+      const resolved = await resolveForecastUrl(lat, lon);
+      if (resolved) {
+        forecastUrl = resolved;
+        forecastKey = `weather-forecast-${lat}-${lon}`;
+      }
+    }
+
     const [observation, forecast] = await Promise.all([
-      fetchCached('weather-obs', NWS_OBS_URL, 15 * 60 * 1000, NWS_HEADERS),
-      fetchCached('weather-forecast', NWS_FORECAST_URL, 15 * 60 * 1000, NWS_HEADERS),
+      fetchCached(obsKey, obsUrl, 15 * 60 * 1000, NWS_HEADERS),
+      fetchCached(forecastKey, forecastUrl, 15 * 60 * 1000, NWS_HEADERS),
     ]);
     res.json({ observation, forecast });
   } catch (err) {

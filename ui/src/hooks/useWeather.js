@@ -38,16 +38,27 @@ function parseObservation(obs) {
   };
 }
 
-export function useWeather() {
+export function useWeather(site) {
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState(null);
+
+  const station = site?.nwsStation ?? '';
+  const lat = site?.coords?.[1] ?? '';
+  const lon = site?.coords?.[0] ?? '';
 
   useEffect(() => {
     let cancelled = false;
 
     async function fetchWeather() {
       try {
-        const res = await fetch('/api/weather');
+        const params = new URLSearchParams();
+        if (station) params.set('station', station);
+        if (lat !== '' && lon !== '') {
+          params.set('lat', String(lat));
+          params.set('lon', String(lon));
+        }
+        const url = '/api/weather' + (params.toString() ? `?${params}` : '');
+        const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (!cancelled) {
@@ -68,7 +79,7 @@ export function useWeather() {
       cancelled = true;
       clearInterval(interval);
     };
-  }, []);
+  }, [station, lat, lon]);
 
   return { weather, error };
 }
