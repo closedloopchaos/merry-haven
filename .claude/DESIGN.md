@@ -311,10 +311,10 @@ The Corsair Xeneon Edge is a hard-locked **2560×720** that lives on a wall **24
 | Component | Constraint |
 |---|---|
 | `.launch-col` | `height: 100%; max-height: var(--display-h)` |
-| `.launch-col .mh-logo` | `max-height: 80px` |
+| `.launch-col .mh-logo` | `max-height: 104px` (stacked masthead: two-line wordmark + crimson slab) |
 | `.launch-col__t0-hero` | `max-height: 165px` |
-| `.launch-col__list` | Renders `launches.slice(1, 5)` — at most 4 items, sized at ~86px each so all are fully readable |
-| `.launch-col__item` | `padding: 9px 20px`, `.launch-col__name` at 19px |
+| `.launch-col__list` | Renders `launches.slice(1, 5)` — at most 4 items; the list is a flex column whose items `flex: 1 1 0`, so items mathematically partition the column remainder below the masthead and T0 hero into equal slices. No estimation, no residual gap, no clipping possible by construction |
+| `.launch-col__item` | `flex: 1 1 0; min-height: 0; justify-content: center;` — equal-share height, content vertically centered. `padding: 12px 20px` controls inner gutter only, not sizing. `.launch-col__name` at 19px |
 | `.launch-detail-col` | `width: 440px`, body `overflow: hidden` |
 | `.weather-col` | `width: 760px`, body `overflow: hidden` |
 | `.editorial__body` | Content sized to fit `~680px` with no scroll — patch 140px hero, headline 36px, lede clamped to 2 lines, footnotes folded into specs grid |

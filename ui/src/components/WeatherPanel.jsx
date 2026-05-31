@@ -133,12 +133,10 @@ export default function WeatherPanel({
                   <span className="weather-panel__wind-speed">{windSpeed != null ? `${windSpeed} mph` : '—'}</span>
                   <span className="weather-panel__wind-dir">{degToCardinal(windDirection)}</span>
                 </div>
-                {windGust != null && (
-                  <div className="weather-panel__wind-row">
-                    <span className="weather-panel__wind-lbl">GUST</span>
-                    <span className="weather-panel__wind-gust">{windGust} mph</span>
-                  </div>
-                )}
+                <div className="weather-panel__wind-row">
+                  <span className="weather-panel__wind-lbl">GUST</span>
+                  <span className="weather-panel__wind-gust">{windGust != null ? `${windGust} mph` : '—'}</span>
+                </div>
               </div>
             </div>
 

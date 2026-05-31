@@ -4,8 +4,10 @@ function celsiusToF(c) {
   return c != null ? Math.round(c * 9 / 5 + 32) : null;
 }
 
-function msToMph(ms) {
-  return ms != null ? Math.round(ms * 2.237) : null;
+// NWS station observations report wind in km/h (unitCode `wmoUnit:km_h-1`),
+// despite the m/s legacy. 1 mph ≈ 1.609 km/h.
+function kmhToMph(kmh) {
+  return kmh != null ? Math.round(kmh / 1.609) : null;
 }
 
 function metersToMiles(m) {
@@ -26,9 +28,9 @@ function parseObservation(obs) {
   return {
     temperature: celsiusToF(tempC),
     dewPoint: calcDewPointF(tempC, rh),
-    windSpeed: msToMph(p.windSpeed?.value),
+    windSpeed: kmhToMph(p.windSpeed?.value),
     windDirection: p.windDirection?.value ?? null,
-    windGust: msToMph(p.windGust?.value),
+    windGust: kmhToMph(p.windGust?.value),
     visibility: metersToMiles(p.visibility?.value),
     relativeHumidity: rh,
     textDescription: p.textDescription ?? '',
